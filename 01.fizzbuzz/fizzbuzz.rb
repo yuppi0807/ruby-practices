@@ -9,5 +9,4 @@ numbers.each do |number|
   else
     puts number
   end
-
 end
