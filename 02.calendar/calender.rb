@@ -1,7 +1,6 @@
 #! /usr/bin/env ruby
 require 'optparse'
 require 'date'
-require 'debug'
 
 class Calender
   def initialize(year,month)
