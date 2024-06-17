@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 require 'optparse'
 require 'date'
+require 'debug'
 
 class Calender
   def initialize(year,month)
@@ -28,19 +29,18 @@ class Calender
     #開始曜日を調べる
     start_day = Date.new(@year,@month,1).wday
     #開始曜日に応じて、空白を追加する
-    start_day.times{ week << " ".rjust(2) }
+    start_day.times{ week << "  "}
+    #西暦、年月を取得する
+    date = Date.new(@year, @month, -1)
     #最終日を取得する
-    date = Date.new(@year, @month, -1).day
+    last_day = date.day
     #最初の日から最後の日までを文字列配列にする。
-    month_array = (1..date).to_a
+    month_array = (1..last_day).to_a
 
     #一日づつ、weekに渡す。
     month_array.each do |day|
       week << day.to_s.rjust(2)
       if week.size == 7 || day == date
-        # week.join(' ')は、配列内の要素をスペースで区切って1つの文字列に連結するメソッド。
-        # たとえば、weekが["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]のような配列であれば、
-        # week.join(' ')は"Mon Tue Wed Thu Fri Sat Sun"という文字列を返す。
         puts week.join(' ')
         week.clear
       end
@@ -49,7 +49,7 @@ class Calender
 end
 
 #今日の日付、西暦を取得する。
-options = {:year => Date.today.year,:month => Date.today.month }  # デフォルトで今日の月を設定
+options = {year:Date.today.year,month:Date.today.month }  # デフォルトで今日の月を設定
 opt = OptionParser.new
 opt.on('-y VAL') {|v| options[:year] = v.to_i}
 opt.on('-m VAL' ) {|v| options[:month] = v.to_i}
