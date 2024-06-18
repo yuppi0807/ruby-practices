@@ -25,19 +25,19 @@ class Calender
 
   def print_onemonth
     week = []
-    #開始曜日を調べる
-    start_day = Date.new(@year,@month,1).wday
+    #西暦、月、開始日を取得する
+    start_day = Date.new(@year,@month,1)
     #開始曜日に応じて、空白を追加する
-    start_day.times{ week << "  " }
+    start_day.wday.times{ week << "  " }
     #西暦、月、最終日を取得する
-    date = Date.new(@year, @month, -1)
+    last_date = Date.new(@year, @month, -1)
     #最初の日から最後の日までを文字列配列にする。
-    month_array = (1..date.day).to_a
+    month_array = (1..last_date.day).to_a
 
     #一日づつ、weekに渡す。
     month_array.each do |day|
       week << day.to_s.rjust(2)
-      if week.size == 7 || day == date
+      if week.size == 7 || day == last_date.day
         puts week.join(' ')
         week.clear
       end
