@@ -28,13 +28,11 @@ class Calender
     #開始曜日を調べる
     start_day = Date.new(@year,@month,1).wday
     #開始曜日に応じて、空白を追加する
-    start_day.times{ week << "  "}
-    #西暦、年月を取得する
+    start_day.times{ week << "  " }
+    #西暦、年月を最終日を取得する
     date = Date.new(@year, @month, -1)
-    #最終日を取得する
-    last_day = date.day
     #最初の日から最後の日までを文字列配列にする。
-    month_array = (1..last_day).to_a
+    month_array = (1..date.day).to_a
 
     #一日づつ、weekに渡す。
     month_array.each do |day|
