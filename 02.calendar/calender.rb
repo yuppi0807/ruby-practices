@@ -29,7 +29,7 @@ class Calender
     start_day = Date.new(@year,@month,1).wday
     #開始曜日に応じて、空白を追加する
     start_day.times{ week << "  " }
-    #西暦、年月、最終日を取得する
+    #西暦、月、最終日を取得する
     date = Date.new(@year, @month, -1)
     #最初の日から最後の日までを文字列配列にする。
     month_array = (1..date.day).to_a
