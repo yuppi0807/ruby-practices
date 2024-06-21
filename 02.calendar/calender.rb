@@ -9,26 +9,30 @@ class Calender
   end
 
   def print
-    puts print_dayandmonth
-    puts print_oneweek
+    print_dayandmonth
+    print_oneweek
     print_onemonth
   end
 
+  private
+
   def print_dayandmonth
-    "#{@month}月 #{@year}".center(20)
+    puts "#{@month}月 #{@year}".center(20)
   end
 
   def print_oneweek
     oneweek_jp = "日 月 火 水 木 金 土"
-    return oneweek_jp
+    puts oneweek_jp
   end
 
   def print_onemonth
     week = []
+    #西暦、月、開始日を取得する
+    start_day = Date.new(@year,@month,1)
     #開始曜日に応じて、空白を追加する
-    Date.new(@year,@month,1).wday.times{ week << "  " }
+    start_day.wday.times{ week << "  " }
     #最初の日から最後の日までを文字列配列にする。
-    days = (Date.new(@year,@month,1)..Date.new(@year, @month, -1))
+    days = (start_day..Date.new(@year, @month, -1))
     #一日づつ、weekに渡す。
     days.each do |date|
       week << date.day.to_s.rjust(2)
