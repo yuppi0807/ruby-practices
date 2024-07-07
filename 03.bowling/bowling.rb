@@ -8,7 +8,6 @@ scores.each_with_index do |s, index|
   # ストライクの場合
   if s == 'X'
     shots << 10
-    # 最終フレームの1投目または2投目の場合
     if index >= 16
       next
     else
@@ -40,19 +39,20 @@ end
 
 total_score = 0
 frames.each_with_index do |frame, index|
-  # 最終フレームの場合
+  # 10ゲーム目の場合
   if index == 9
     total_score += frame.sum
   # ストライクの場合
   elsif frame[0] == 10
-    if frames[index + 1][0] == 10 && index == 8
+    strike_ninegame = frames[index + 1][0] == 10 && index == 8
+    if strike_ninegame
       total_score += 10 + frames[index + 1][0] + frames[index + 1][1]
     elsif frames[index + 1][0] == 10
       total_score += 20 + frames[index + 2][0]
     else
       total_score += 10 + frames[index + 1][0] + frames[index + 1][1]
     end
-  # スペアの場合
+  # ストライクの場合
   elsif frame.sum == 10
     total_score += 10 + frames[index + 1][0]
   else
