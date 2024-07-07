@@ -52,7 +52,7 @@ frames.each_with_index do |frame, index|
     else
       total_score += 10 + frames[index + 1][0] + frames[index + 1][1]
     end
-  # ストライクの場合
+  # スペアの場合
   elsif frame.sum == 10
     total_score += 10 + frames[index + 1][0]
   else
