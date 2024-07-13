@@ -8,11 +8,7 @@ scores.each_with_index do |s, index|
   # ストライクの場合
   if s == 'X'
     shots << 10
-    if index >= 16
-      next
-    else
-      shots << 0
-    end
+    shots << 0 if index < 16
   else
     shots << s.to_i
   end
@@ -24,18 +20,8 @@ shots.each_slice(2) do |s|
   frames << s
 end
 
-# 最終フレームの処理
-if frames[10]
-  frames[9] << frames[10][0].to_i
-  frames.delete_at(10)
-end
-
-# 最終フレームにストライクが2回以上あった場合
-if frames[10]
-  frames[9] << frames[10][0].to_i
-  frames.delete_at(10)
-  frames[9].delete(0)
-end
+# 8番目までの配列 + 9番目以降の0を取り除いてくっつけたもの（10レーンでストライクが発生した場合）
+frames = frames[0..8] + [frames[9..].map { _1 == [10, 0] ? [10] : _1 }.flatten]
 
 total_score = 0
 frames.each_with_index do |frame, index|
@@ -45,13 +31,13 @@ frames.each_with_index do |frame, index|
   # ストライクの場合
   elsif frame[0] == 10
     strike_ninegame = frames[index + 1][0] == 10 && index == 8
-    if strike_ninegame
-      total_score += 10 + frames[index + 1][0] + frames[index + 1][1]
-    elsif frames[index + 1][0] == 10
-      total_score += 20 + frames[index + 2][0]
-    else
-      total_score += 10 + frames[index + 1][0] + frames[index + 1][1]
-    end
+    total_score += if strike_ninegame
+                     10 + frames[index + 1][0] + frames[index + 1][1]
+                   elsif frames[index + 1][0] == 10
+                     20 + frames[index + 2][0]
+                   else
+                     10 + frames[index + 1][0] + frames[index + 1][1]
+                   end
   # スペアの場合
   elsif frame.sum == 10
     total_score += 10 + frames[index + 1][0]
