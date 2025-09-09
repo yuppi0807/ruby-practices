@@ -1,83 +1,108 @@
 # frozen_string_literal: true
 
-def acquisition_files_and_directories
-  filesanddiries = []
-  Dir.glob('*') do |d|
-    filesanddiries.push(d)
+def main
+  entry_names = fetch_entry_names
+  entry_names = delete_file_name(entry_names, myself_file_name)
+  max_width = get_max_width(entry_names)
+  shape_entry_names = shape_entry_names(entry_names)
+  puts_and_shape_width(shape_entry_names, max_width)
+end
+
+def fetch_entry_names
+  entry_names = []
+  Dir.glob('*') do |entry_name|
+    entry_names.push(entry_name)
   end
-  filesanddiries
+  entry_names
 end
 
-def cutsamename
-  cutsamename_filesanddiries = acquisition_files_and_directories
-  cutsamename_filesanddiries.delete('ls.rb')
-  cutsamename_filesanddiries
+def myself_file_name
+  File.basename($PROGRAM_NAME)
 end
 
-def arrange_list
-  cutsamenamelist = cutsamename
-  max_width = cutsamenamelist.map { |s| display_width(s) }.max
-  list1 = []
-  list2 = []
-  list3 = []
+def delete_file_name(entry_names, deletion_file_name)
+  entry_names.reject { |e| e == deletion_file_name }
+end
+
+def get_max_width(list)
+  list.map { |s| get_width(s) }.max
+end
+
+def get_width(str)
+  str.codepoints.inject(0) { |a, e| a + (e < 256 ? 1 : 2) }
+end
+
+def shape_entry_names(entry_names)
+  shape_entry_names = if entry_names.size <= 9
+                        shape_under_than_specified(entry_names)
+                      else
+                        shape_over_than_specified(entry_names)
+                      end
+  shape_entry_names.transpose
+end
+
+def shape_under_than_specified(entry_names)
+  columns = [[], [], []]
   number = 0
-  if cutsamenamelist.size <= 9
-    cutsamenamelist.each_with_index do |fileanddir, _index|
-      if number < 3
-        list1.push(fileanddir)
+  entry_names.each_with_index do |entry_name, _index|
+    if number < 3
+      columns[0].push(entry_name)
+      number += 1
+    elsif number < 6
+      columns[1].push(entry_name)
+      number += 1
+    elsif number < 9
+      columns[2].push(entry_name)
+      if number == 8
+        number = 0
+      else
         number += 1
-      elsif number < 6
-        list2.push(fileanddir)
-        number += 1
-      elsif number < 9
-        list3.push(fileanddir)
-        if number == 8
-          number = 0
-        else
-          number += 1
-        end
       end
     end
-    mainsize = list1.size
-    list2.push(nil) until list2.size == mainsize
-    list3.push(nil) until list3.size == mainsize
-  else
-    cutsamename_surplus = cutsamenamelist.size % 3
-    number = if cutsamename_surplus.zero?
-               cutsamenamelist.size / 3
-             else
-               cutsamenamelist.size / 3 + 1
-             end
-    number.times do
-      list1.push(cutsamenamelist.shift)
-    end
-    number.times do
-      list2.push(cutsamenamelist.shift)
-    end
-    number.times do
-      list3.push(cutsamenamelist.shift)
-    end
   end
-  union_list = [list1, list2, list3]
-  [union_list.transpose, max_width]
+  shape_list_size(columns[0], columns[1], columns[2])
 end
 
-def display_fileanddir
-  use_get_rows_and_columns_list, max_width = arrange_list
+def shape_list_size(base_list, target_list1, target_list2)
+  mainsize = base_list.size
+  target_list1.push(nil) until target_list1.size == mainsize
+  target_list2.push(nil) until target_list2.size == mainsize
+  [base_list, target_list1, target_list2]
+end
 
-  use_get_rows_and_columns_list.each do |row|
+def shape_over_than_specified(entry_names)
+  column1 = []
+  column2 = []
+  column3 = []
+  entry_names_surplus = entry_names.size % 3
+  number = if entry_names_surplus.zero?
+             entry_names.size / 3
+           else
+             entry_names.size / 3 + 1
+           end
+  number.times do
+    column1.push(entry_names.shift)
+  end
+  number.times do
+    column2.push(entry_names.shift)
+  end
+  number.times do
+    column3.push(entry_names.shift)
+  end
+  [column1, column2, column3]
+end
+
+def puts_and_shape_width(entry_names, width)
+  entry_names.each do |row|
     row.each do |col|
       if col.nil?
-        print ' ' * (max_width + 2)
+        print ' ' * (width + 2)
       else
-        print col.ljust(max_width + 2)
+        print col.ljust(width + 2)
       end
     end
     puts
   end
 end
 
-def display_width(str)
-  str.codepoints.inject(0) { |a, e| a + (e < 256 ? 1 : 2) }
-end
-display_fileanddir
+main
