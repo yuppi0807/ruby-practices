@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-COL_COUNT = 4
+COL_COUNT = 3
 
 def main
   entry_names = Dir.glob('*')
