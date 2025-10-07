@@ -5,27 +5,27 @@ COL_COUNT = 3
 def main
   entry_names = Dir.glob('*')
   max_width = entry_names.map(&:size).max
-  arranged_entry_names = arrange_entry_names(entry_names)
-  puts_table(arranged_entry_names, max_width)
+  entry_names_table = change_list_to_table(entry_names)
+  puts_table(entry_names_table, max_width)
 end
 
-def arrange_entry_names(entry_names)
-  sliced_size = entry_names.size.ceildiv(COL_COUNT)
-  sliced_entry_names = entry_names.each_slice(sliced_size).to_a
-  arranged_entry_names = arrange_size(sliced_entry_names, sliced_size)
-  arranged_entry_names.transpose
+def change_list_to_table(entry_names)
+  row_size = entry_names.size.ceildiv(COL_COUNT)
+  entry_names_table_blanks = entry_names.each_slice(row_size).to_a
+  entry_names_table = fill_blanks(entry_names_table_blanks, row_size)
+  entry_names_table.transpose
 end
 
-def arrange_size(entry_names, size)
-  entry_names.map do |entry_name_col|
-    entry_name_col + [nil] * (size - entry_name_col.length)
+def fill_blanks(entry_names_table_blanks, row_size)
+  entry_names_table_blanks.map do |entry_names|
+    entry_names + [nil] * (row_size - entry_names.length)
   end
 end
 
-def puts_table(arranged_entry_names, width)
-  arranged_entry_names.each do |row|
-    row.each do |col|
-      print col.to_s.ljust(width + 2)
+def puts_table(entry_names_table, max_width)
+  entry_names_table.each do |entry_names|
+    entry_names.each do |entry_name|
+      print entry_name.to_s.ljust(max_width + 2)
     end
     puts
   end
