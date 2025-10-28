@@ -1,9 +1,26 @@
 # frozen_string_literal: true
 
-COL_COUNT = 3
+require 'optparse'
 
-def main
-  entry_names = Dir.glob('*')
+COL_COUNT = 3
+@options = { a: false }
+
+def analyze_options
+  OptionParser.new do |opts|
+    opts.on('-a') { @options[:a] = true }
+  end.parse!
+  if @options[:a]
+    entry_names = Dir.glob('*', File::FNM_DOTMATCH)
+    main(entry_names)
+  elsif ARGV.empty?
+    entry_names = Dir.glob('*')
+    main(entry_names)
+  end
+rescue OptionParser::InvalidOption
+  puts '出力範囲外のオプションです'
+end
+
+def main(entry_names)
   max_width = entry_names.map(&:size).max
   entry_name_table = convert_list_to_table(entry_names)
   puts_table(entry_name_table, max_width)
@@ -31,4 +48,4 @@ def puts_table(entry_name_table, max_width)
   end
 end
 
-main
+analyze_options
