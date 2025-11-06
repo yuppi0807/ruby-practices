@@ -7,33 +7,31 @@ require 'optparse'
 COL_COUNT = 3
 
 def main
-  options = analyze_options
+  options = parse_options
+  return if options[:invalid_option]
+
   entry_names = make_entry_names(options)
   max_width = entry_names.map(&:size).max
   entry_name_table = convert_list_to_table(entry_names)
   puts_table(entry_name_table, max_width)
 end
 
-def analyze_options
-  option_flags = make_option_flag
+def parse_options
+  option_flags = { a: false, invalid_option: false }
   OptionParser.new do |opts|
     opts.on('-a') { option_flags[:a] = true }
   end.parse!
-  option_flags[:not_option] = true if ARGV.empty?
   option_flags
 rescue OptionParser::InvalidOption
-  puts '出力範囲外のオプションです'
-  exit 1
-end
-
-def make_option_flag
-  { a: false }
+  puts '不正なオプションです'
+  option_flags[:invalid_option] = true
+  option_flags
 end
 
 def make_entry_names(options)
   if options[:a]
     Dir.glob('*', File::FNM_DOTMATCH)
-  elsif options[:not_option]
+  else
     Dir.glob('*')
   end
 end
