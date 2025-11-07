@@ -17,11 +17,11 @@ def main
 end
 
 def parse_options
-  option = { a: false }
+  options = { a: false }
   OptionParser.new do |opts|
-    opts.on('-a') { option[:a] = true }
+    opts.on('-a') { options[:a] = true }
   end.parse!
-  [true, option]
+  [true, options]
 rescue OptionParser::InvalidOption
   puts '不正なオプションです'
   [false, nil]
