@@ -17,7 +17,7 @@ def main
 end
 
 def parse_options
-  option_flags = { a: false, invalid_option: false }
+  option = { a: false, invalid_option: false }
   OptionParser.new do |opts|
     opts.on('-a') { option_flags[:a] = true }
   end.parse!
