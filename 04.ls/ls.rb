@@ -21,14 +21,14 @@ def parse_options
   OptionParser.new do |opts|
     opts.on('-a') { option_flags[:a] = true }
   end.parse!
-  option_flags
+  option
 rescue OptionParser::InvalidOption
   puts '不正なオプションです'
-  option_flags[:invalid_option] = true
-  option_flags
+  option[:invalid_option] = true
+  option
 end
 
-def make_entry_names(options)
+def find_entry_names(options)
   if options[:a]
     Dir.glob('*', File::FNM_DOTMATCH)
   else
