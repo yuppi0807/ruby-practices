@@ -8,24 +8,23 @@ COL_COUNT = 3
 
 def main
   options = parse_options
-  return if options[:invalid_option]
+  return unless options[0]
 
-  entry_names = find_entry_names(options)
+  entry_names = find_entry_names(options[1])
   max_width = entry_names.map(&:size).max
   entry_name_table = convert_list_to_table(entry_names)
   puts_table(entry_name_table, max_width)
 end
 
 def parse_options
-  option = { a: false, invalid_option: false }
+  option = { a: false }
   OptionParser.new do |opts|
     opts.on('-a') { option[:a] = true }
   end.parse!
-  option
+  [true, option]
 rescue OptionParser::InvalidOption
   puts '不正なオプションです'
-  option[:invalid_option] = true
-  option
+  [false, nil]
 end
 
 def find_entry_names(options)
