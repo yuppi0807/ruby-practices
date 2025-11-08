@@ -17,9 +17,9 @@ def main
 end
 
 def parse_options
-  options = { a: false }
+  options = { r: false }
   OptionParser.new do |opts|
-    opts.on('-a') { options[:a] = true }
+    opts.on('-r') { options[:r] = true }
   end.parse!
   [true, options]
 rescue OptionParser::InvalidOption
@@ -28,8 +28,8 @@ rescue OptionParser::InvalidOption
 end
 
 def find_entry_names(options)
-  if options[:a]
-    Dir.glob('*', File::FNM_DOTMATCH)
+  if options[:r]
+    Dir.glob('*').reverse
   else
     Dir.glob('*')
   end
