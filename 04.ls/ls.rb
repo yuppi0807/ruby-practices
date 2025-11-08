@@ -7,7 +7,7 @@ require 'optparse'
 COL_COUNT = 3
 
 def main
-  success ,options = parse_options
+  success, options = parse_options
   return unless success
 
   entry_names = find_entry_names(options)
