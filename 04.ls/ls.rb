@@ -7,10 +7,10 @@ require 'optparse'
 COL_COUNT = 3
 
 def main
-  options = parse_options
-  return unless options[0]
+  success ,options = parse_options
+  return unless success
 
-  entry_names = find_entry_names(options[1])
+  entry_names = find_entry_names(options)
   max_width = entry_names.map(&:size).max
   entry_name_table = convert_list_to_table(entry_names)
   puts_table(entry_name_table, max_width)
