@@ -9,7 +9,7 @@ require 'date'
 COL_COUNT = 3
 
 def main
-  success, options = parse_options
+  success ,options = parse_options
   return unless success
 
   if options[:l]
