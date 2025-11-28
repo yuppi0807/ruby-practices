@@ -5,17 +5,41 @@
 require 'optparse'
 require 'etc'
 require 'date'
+require 'debug'
 
 COL_COUNT = 3
+
+FILE_TYPES = {
+  '01' => 'p',
+  '02' => 'c',
+  '04' => 'd',
+  '06' => 'b',
+  '10' => '-',
+  '12' => 'l',
+  '14' => 's'
+}.freeze
+
+FILE_PERMISSION_TABLES = {
+  '0' => '---',
+  '1' => '--x',
+  '2' => '-w-',
+  '3' => '-wx',
+  '4' => 'r--',
+  '5' => 'r-x',
+  '6' => 'rw-',
+  '7' => 'rwx'
+}.freeze
+
+FIRST_COL = 0
 
 def main
   success, options = parse_options
   return unless success
 
   if options[:l]
-    entry_names_infos = create_entry_names_infos
+    entry_info_table = create_entry_info_table
     total_blocks = create_total_blocks
-    put_entry_names_infos(total_blocks, entry_names_infos)
+    put_entry_names_infos(total_blocks, entry_info_table)
   else
     entry_names = Dir.glob('*')
     max_width = entry_names.map(&:size).max
@@ -57,128 +81,92 @@ def puts_table(entry_name_table, max_width)
   end
 end
 
-def create_entry_names_infos
-  entry_names_infos = []
-  Dir.glob('*').each do |entry_name|
-    entry_names_info = []
+def create_entry_info_table
+  entry_info_table = Dir.glob('*').map do |entry_name|
+    entry_info = []
     stat = File::Stat.new(entry_name)
     stat_mode = stat.mode.to_s(8)
-    stat_mode_length_six = add_zero(stat_mode)
-    entry_names_info << get_file_mode(stat_mode_length_six, entry_name)
-    entry_names_info << stat.nlink.to_s
-    entry_names_info << get_owner_name(stat)
-    entry_names_info << get_group_name(stat)
-    entry_names_info << get_file_size(stat)
+    entry_info << get_file_mode(stat_mode, entry_name)
+    entry_info << stat.nlink.to_s
+    entry_info << get_owner_name(stat)
+    entry_info << get_group_name(stat)
+    entry_info << stat.size.to_s
     updated_day = File.mtime(entry_name)
     get_updated_dates(updated_day).each do |updated_date|
-      entry_names_info << updated_date
+      entry_info << updated_date
     end
-    entry_names_info << entry_name
-    entry_names_infos << entry_names_info
+    entry_info << entry_name
   end
-  align_width(entry_names_infos)
+  align_width(entry_info_table)
 end
 
 def create_total_blocks
-  total_blocks = 0
-  Dir.glob('*').each do |entry_name|
-    stat = File::Stat.new(entry_name)
-    total_blocks += stat.blocks
-  end
-  total_blocks
-end
-
-def add_zero(stat_mode)
-  if stat_mode.to_s.length == 5
-    "0#{stat_mode}"
-  else
-    stat_mode
+  Dir.glob('*').sum do |entry_name|
+    File::Stat.new(entry_name).blocks
   end
 end
 
 def get_file_mode(stat_mode, entry_name)
+  aligned_stat_mode = stat_mode.to_s.length == 5 ? stat_mode.rjust(6, '0') : stat_mode
   file_mode = []
-  file_mode << get_file_type(stat_mode)
-  file_mode << get_file_permission(stat_mode)
+  file_mode << get_file_type(aligned_stat_mode)
+  file_mode << get_file_permission(aligned_stat_mode)
   file_mode << get_extended_attributes(entry_name)
-  file_mode.join('')
+  file_mode.join
 end
 
 def get_file_type(stat_mode)
-  file_type = {
-    '01' => 'p',
-    '02' => 'c',
-    '04' => 'd',
-    '06' => 'b',
-    '10' => '-',
-    '12' => 'l',
-    '14' => 's'
-  }
-  file_type[stat_mode[0, 2]]
+  FILE_TYPES[stat_mode[0, 2]]
 end
 
 def get_file_permission(stat_mode)
-  file_permission_infos = {
-    '0' => '---',
-    '1' => '--x',
-    '2' => '-w-',
-    '3' => '-wx',
-    '4' => 'r--',
-    '5' => 'r-x',
-    '6' => 'rw-',
-    '7' => 'rwx'
-  }
-  stat_mode[3..5].chars.map { |stat_mode_digit| file_permission_infos[stat_mode_digit] }.join
+  stat_mode[3..5].chars.map { |digit| FILE_PERMISSION_TABLES[digit] }.join
 end
 
 def get_extended_attributes(file_name)
-  attrs = `xattr #{file_name}`.split("\n")
-  return if attrs.empty?
-
-  '@'
+  attrs = `xattr #{file_name}`
+  attrs.empty? ? ' ' : '@'
 end
 
 def get_owner_name(stat)
-  uid = stat.uid
-  Etc.getpwuid(uid).name
+  Etc.getpwuid(stat.uid).name
 end
 
 def get_group_name(stat)
   Etc.getgrgid(stat.gid).name
 end
 
-def get_file_size(stat)
-  stat.size.to_s
-end
-
 def get_updated_dates(updated_day)
-  updated_date = []
-  now = DateTime.now
-  six_month_ago = now << 6
-  updated_date << updated_day.month.to_s
-  updated_date << updated_day.day.to_s
+  today = Date.today
+  six_month_ago = today << 6
   six_month_ago_flag = six_month_ago >= updated_day.to_datetime
-  updated_date << (six_month_ago_flag ? updated_day.year.to_s : "#{format('%02d', updated_day.hour)}:#{format('%02d', updated_day.min)}")
+  updated_date = six_month_ago_flag ? updated_day.strftime('%-m %-d %Y') : updated_day.strftime('%-m %-d %H:%M')
+  updated_date.split(' ')
 end
 
-def put_entry_names_infos(total_blocks, entry_names_infos)
+def put_entry_names_infos(total_blocks, entry_info_table)
   puts "total #{total_blocks}"
-  entry_names_infos.map do |entry_names_info|
-    puts entry_names_info.join(' ')
+  entry_info_table.map do |entry_info|
+    puts entry_info.join(' ')
   end
 end
 
-def align_width(entry_names_infos)
-  max_widths = entry_names_infos.transpose.map do |column|
+def align_width(entry_info_table)
+  max_widths = entry_info_table.transpose.map do |column|
     column.map(&:length).max
   end
 
-  entry_names_infos.map do |row|
-    row.map.with_index do |cell, index|
-      if [0, 8].include?(index)
-        cell.ljust(max_widths[index])
+  entry_info_table_width = entry_info_table.map do |row|
+    [max_widths, row].transpose
+  end
+
+  entry_info_table_width.map do |row|
+    max_col = row.size
+    row.map.with_index do |col, index|
+      if [FIRST_COL, max_col - 1].include?(index)
+        col[1].ljust(col[0])
       else
-        cell.rjust(max_widths[index])
+        col[1].rjust(col[0])
       end
     end
   end
