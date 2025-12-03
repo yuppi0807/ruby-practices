@@ -5,6 +5,7 @@
 require 'optparse'
 require 'etc'
 require 'date'
+require 'debug'
 
 COL_COUNT = 3
 
@@ -90,7 +91,7 @@ def create_entry_info_table
     entry_info << get_owner_name(stat)
     entry_info << get_group_name(stat)
     entry_info << stat.size.to_s
-    updated_day = File.mtime(entry_name)
+    updated_day = File.mtime(entry_name).to_date
     get_updated_dates(updated_day).each do |updated_date|
       entry_info << updated_date
     end
@@ -138,7 +139,7 @@ end
 def get_updated_dates(updated_day)
   today = Date.today
   six_month_ago = today << 6
-  six_month_ago_flag = six_month_ago >= updated_day.to_datetime
+  six_month_ago_flag = six_month_ago >= updated_day
   updated_date = six_month_ago_flag ? updated_day.strftime('%-m %-d %Y') : updated_day.strftime('%-m %-d %H:%M')
   updated_date.split(' ')
 end
