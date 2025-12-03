@@ -5,7 +5,6 @@
 require 'optparse'
 require 'etc'
 require 'date'
-require 'debug'
 
 COL_COUNT = 3
 
