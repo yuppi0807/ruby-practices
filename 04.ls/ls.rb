@@ -30,6 +30,7 @@ FILE_PERMISSION_TABLES = {
 }.freeze
 
 FIRST_COL = 0
+SIX_MONTH = 6
 
 def main
   success, options = parse_options
@@ -134,7 +135,7 @@ def get_group_name(stat)
 end
 
 def get_updated_dates(updated_day)
-  six_month_ago = (Date.today << 6).to_time
+  six_month_ago = (Date.today << SIX_MONTH).to_time
   six_month_ago_flag = six_month_ago >= updated_day
   updated_date = six_month_ago_flag ? updated_day.strftime('%_m %e %_5Y') : updated_day.strftime('%_m %e %H:%M')
 end
