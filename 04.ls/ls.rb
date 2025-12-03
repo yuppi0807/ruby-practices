@@ -90,10 +90,8 @@ def create_entry_info_table
     entry_info << get_owner_name(stat)
     entry_info << get_group_name(stat)
     entry_info << stat.size.to_s
-    updated_day = File.mtime(entry_name).to_date
-    get_updated_dates(updated_day).each do |updated_date|
-      entry_info << updated_date
-    end
+    updated_day = File.mtime(entry_name)
+    entry_info << get_updated_dates(updated_day)
     entry_info << entry_name
   end
   align_width(entry_info_table)
@@ -136,11 +134,9 @@ def get_group_name(stat)
 end
 
 def get_updated_dates(updated_day)
-  today = Date.today
-  six_month_ago = today << 6
+  six_month_ago = (Date.today << 6).to_time
   six_month_ago_flag = six_month_ago >= updated_day
-  updated_date = six_month_ago_flag ? updated_day.strftime('%-m %-d %Y') : updated_day.strftime('%-m %-d %H:%M')
-  updated_date.split(' ')
+  updated_date = six_month_ago_flag ? updated_day.strftime('%_m %e %_5Y') : updated_day.strftime('%_m %e %H:%M')
 end
 
 def put_entry_names_infos(total_blocks, entry_info_table)
