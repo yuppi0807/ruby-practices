@@ -83,17 +83,18 @@ end
 
 def create_entry_info_table
   entry_info_table = Dir.glob('*').map do |entry_name|
-    entry_info = []
+    entry_info = {}
     stat = File::Stat.new(entry_name)
     stat_mode = stat.mode.to_s(8)
-    entry_info << get_file_mode(stat_mode, entry_name)
-    entry_info << stat.nlink.to_s
-    entry_info << get_owner_name(stat)
-    entry_info << get_group_name(stat)
-    entry_info << stat.size.to_s
+    entry_info[:file_mode] = get_file_mode(stat_mode, entry_name)
+    entry_info[:nlink] = stat.nlink.to_s
+    entry_info[:owner_name] = get_owner_name(stat)
+    entry_info[:group_name] = get_group_name(stat)
+    entry_info[:file_size] = stat.size.to_s
     updated_day = File.mtime(entry_name)
-    entry_info << get_updated_dates(updated_day)
-    entry_info << entry_name
+    entry_info[:updated_dates] = get_updated_dates(updated_day)
+    entry_info[:entry_name] = entry_name
+    entry_info
   end
   align_width(entry_info_table)
 end
@@ -137,7 +138,8 @@ end
 def get_updated_dates(updated_day)
   six_month_ago = (Date.today << SIX_MONTH).to_time
   six_month_ago_flag = six_month_ago >= updated_day
-  updated_date = six_month_ago_flag ? updated_day.strftime('%_m %e %_5Y') : updated_day.strftime('%_m %e %H:%M')
+  updated_date_format = six_month_ago_flag ? '%_m %e %_5Y': '%_m %e %H:%M'
+  updated_day.strftime(updated_date_format)
 end
 
 def put_entry_names_infos(total_blocks, entry_info_table)
@@ -148,21 +150,16 @@ def put_entry_names_infos(total_blocks, entry_info_table)
 end
 
 def align_width(entry_info_table)
-  max_widths = entry_info_table.transpose.map do |column|
-    column.map(&:length).max
+  keys = entry_info_table.first.keys
+  max_widths = keys.to_h do |key|
+    [key, entry_info_table.map { |row| row[key].to_s.length }.max]
   end
-
-  entry_info_table_width = entry_info_table.map do |row|
-    [max_widths, row].transpose
-  end
-
-  entry_info_table_width.map do |row|
-    max_col = row.size
-    row.map.with_index do |col, index|
-      if [FIRST_COL, max_col - 1].include?(index)
-        col[1].ljust(col[0])
+  entry_info_table_align = entry_info_table.map do |row|
+    keys.map do |key|
+      if key == :file_mode || key == :entry_name || key == :owner_name || key == :group_name
+        row[key].ljust(max_widths[key])
       else
-        col[1].rjust(col[0])
+        row[key].rjust(max_widths[key])
       end
     end
   end
