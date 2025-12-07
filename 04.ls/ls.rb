@@ -7,6 +7,7 @@ require 'etc'
 require 'date'
 
 COL_COUNT = 3
+SIX_MONTH = 6
 
 FILE_TYPES = {
   '01' => 'p',
@@ -28,9 +29,6 @@ FILE_PERMISSION_TABLES = {
   '6' => 'rw-',
   '7' => 'rwx'
 }.freeze
-
-FIRST_COL = 0
-SIX_MONTH = 6
 
 def main
   success, options = parse_options
@@ -138,7 +136,7 @@ end
 def get_updated_dates(updated_day)
   six_month_ago = (Date.today << SIX_MONTH).to_time
   six_month_ago_flag = six_month_ago >= updated_day
-  updated_date_format = six_month_ago_flag ? '%_m %e %_5Y': '%_m %e %H:%M'
+  updated_date_format = six_month_ago_flag ? '%_m %e %_5Y' : '%_m %e %H:%M'
   updated_day.strftime(updated_date_format)
 end
 
@@ -151,17 +149,21 @@ end
 
 def align_width(entry_info_table)
   keys = entry_info_table.first.keys
-  max_widths = keys.to_h do |key|
-    [key, entry_info_table.map { |row| row[key].to_s.length }.max]
-  end
-  entry_info_table_align = entry_info_table.map do |row|
+  max_widths_list = get_max_width_list(keys, entry_info_table)
+  entry_info_table.map do |row|
     keys.map do |key|
-      if key == :file_mode || key == :entry_name || key == :owner_name || key == :group_name
-        row[key].ljust(max_widths[key])
+      if %i[file_mode entry_name owner_name group_name].include?(key)
+        row[key].ljust(max_widths_list[key])
       else
-        row[key].rjust(max_widths[key])
+        row[key].rjust(max_widths_list[key])
       end
     end
+  end
+end
+
+def get_max_width_list(keys, entry_info_table)
+  keys.to_h do |key|
+    [key, entry_info_table.map { |row| row[key].to_s.length }.max]
   end
 end
 
