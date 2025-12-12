@@ -104,12 +104,11 @@ def create_total_blocks
 end
 
 def get_file_mode(stat_mode, entry_name)
-  aligned_stat_mode = stat_mode.to_s.length == 5 ? stat_mode.rjust(6, '0') : stat_mode
-  file_mode = []
-  file_mode << get_file_type(aligned_stat_mode)
-  file_mode << get_file_permission(aligned_stat_mode)
-  file_mode << get_extended_attributes(entry_name)
-  file_mode.join
+  aligned_stat_mode = stat_mode.rjust(6, '0')
+  file_type = get_file_type(aligned_stat_mode)
+  file_permission = get_file_permission(aligned_stat_mode)
+  extended_attributes = get_extended_attributes(entry_name)
+  "#{file_type}#{file_permission}#{extended_attributes}"
 end
 
 def get_file_type(stat_mode)
