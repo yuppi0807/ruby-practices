@@ -105,14 +105,10 @@ end
 
 def get_file_mode(stat_mode, entry_name)
   aligned_stat_mode = stat_mode.rjust(6, '0')
-  file_type = get_file_type(aligned_stat_mode)
+  file_type = FILE_TYPES[aligned_stat_mode[0, 2]]
   file_permission = get_file_permission(aligned_stat_mode)
   extended_attributes = get_extended_attributes(entry_name)
   "#{file_type}#{file_permission}#{extended_attributes}"
-end
-
-def get_file_type(stat_mode)
-  FILE_TYPES[stat_mode[0, 2]]
 end
 
 def get_file_permission(stat_mode)
