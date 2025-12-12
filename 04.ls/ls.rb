@@ -83,8 +83,7 @@ def create_entry_info_table
   entry_info_table = Dir.glob('*').map do |entry_name|
     entry_info = {}
     stat = File::Stat.new(entry_name)
-    stat_mode = stat.mode.to_s(8)
-    entry_info[:file_mode] = get_file_mode(stat_mode, entry_name)
+    stat_mode,entry_info[:file_mode] = get_file_mode(stat, entry_name)
     entry_info[:nlink] = stat.nlink.to_s
     entry_info[:owner_name] = get_owner_name(stat)
     entry_info[:group_name] = get_group_name(stat)
@@ -103,12 +102,13 @@ def create_total_blocks
   end
 end
 
-def get_file_mode(stat_mode, entry_name)
+def get_file_mode(stat, entry_name)
+  stat_mode = stat.mode.to_s(8)
   aligned_stat_mode = stat_mode.rjust(6, '0')
   file_type = FILE_TYPES[aligned_stat_mode[0, 2]]
   file_permission = get_file_permission(aligned_stat_mode)
   extended_attributes = get_extended_attributes(entry_name)
-  "#{file_type}#{file_permission}#{extended_attributes}"
+  [stat_mode,"#{file_type}#{file_permission}#{extended_attributes}"]
 end
 
 def get_file_permission(stat_mode)
