@@ -30,6 +30,16 @@ FILE_PERMISSION_TABLES = {
   '7' => 'rwx'
 }.freeze
 
+FILE_INFO_KEYS = [
+  :file_mode,
+  :nlink,
+  :owner_name,
+  :group_name,
+  :file_size,
+  :updated_dates,
+  :entry_name
+].freeze
+
 def main
   success, options = parse_options
   return unless success
@@ -147,10 +157,9 @@ def puts_entry_names_info(total_blocks, entry_info_table)
 end
 
 def align_width(entry_info_table)
-  keys = entry_info_table.first.keys
-  max_widths = get_max_widths(keys, entry_info_table)
+  max_widths = get_max_widths(FILE_INFO_KEYS, entry_info_table)
   entry_info_table.map do |row|
-    keys.map do |key|
+    FILE_INFO_KEYS.map do |key|
       if %i[file_mode entry_name owner_name group_name].include?(key)
         row[key].ljust(max_widths[key])
       else
