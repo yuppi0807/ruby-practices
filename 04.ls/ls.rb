@@ -30,14 +30,14 @@ FILE_PERMISSION_TABLES = {
   '7' => 'rwx'
 }.freeze
 
-FILE_INFO_KEYS = [
-  :file_mode,
-  :nlink,
-  :owner_name,
-  :group_name,
-  :file_size,
-  :updated_dates,
-  :entry_name
+FILE_INFO_KEYS = %i[
+  file_mode
+  nlink
+  owner_name
+  group_name
+  file_size
+  updated_dates
+  entry_name
 ].freeze
 
 def main
@@ -90,7 +90,7 @@ def puts_table(entry_name_table, max_width)
 end
 
 def create_entry_info_table
-  entry_info_table = get_entry_names.map do |entry_name|
+  entry_info_table = entry_names.map do |entry_name|
     entry_info = {}
     stat = File::Stat.new(entry_name)
     entry_info[:file_mode] = get_file_mode(stat, entry_name)
@@ -107,12 +107,12 @@ def create_entry_info_table
 end
 
 def create_total_blocks
-  get_entry_names.sum do |entry_name|
+  entry_names.sum do |entry_name|
     File::Stat.new(entry_name).blocks
   end
 end
 
-def get_entry_names
+def entry_names
   Dir.glob('*')
 end
 
