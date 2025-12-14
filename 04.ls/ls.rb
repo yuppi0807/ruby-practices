@@ -49,7 +49,6 @@ def main
     total_blocks = create_total_blocks
     puts_entry_names_info(total_blocks, entry_info_table)
   else
-    entry_names = Dir.glob('*')
     max_width = entry_names.map(&:size).max
     entry_name_table = convert_list_to_table(entry_names)
     puts_table(entry_name_table, max_width)
