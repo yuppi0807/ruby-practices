@@ -37,7 +37,7 @@ def main
   if options[:l]
     entry_info_table = create_entry_info_table
     total_blocks = create_total_blocks
-    puts_entry_names_infos(total_blocks, entry_info_table)
+    puts_entry_names_info(total_blocks, entry_info_table)
   else
     entry_names = Dir.glob('*')
     max_width = entry_names.map(&:size).max
@@ -139,7 +139,7 @@ def get_updated_dates(updated_day)
   updated_day.strftime(updated_date_format)
 end
 
-def puts_entry_names_infos(total_blocks, entry_info_table)
+def puts_entry_names_info(total_blocks, entry_info_table)
   puts "total #{total_blocks}"
   entry_info_table.map do |entry_info|
     puts entry_info.join(' ')
