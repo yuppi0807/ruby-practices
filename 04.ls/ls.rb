@@ -80,7 +80,7 @@ def puts_table(entry_name_table, max_width)
 end
 
 def create_entry_info_table
-  entry_info_table = Dir.glob('*').map do |entry_name|
+  entry_info_table = get_entry_names.map do |entry_name|
     entry_info = {}
     stat = File::Stat.new(entry_name)
     stat_mode,entry_info[:file_mode] = get_file_mode(stat, entry_name)
@@ -97,9 +97,13 @@ def create_entry_info_table
 end
 
 def create_total_blocks
-  Dir.glob('*').sum do |entry_name|
+  get_entry_names.sum do |entry_name|
     File::Stat.new(entry_name).blocks
   end
+end
+
+def get_entry_names
+  Dir.glob('*')
 end
 
 def get_file_mode(stat, entry_name)
