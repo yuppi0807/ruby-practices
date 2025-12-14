@@ -148,19 +148,19 @@ end
 
 def align_width(entry_info_table)
   keys = entry_info_table.first.keys
-  max_widths_list = get_max_width_list(keys, entry_info_table)
+  max_widths = get_max_widths(keys, entry_info_table)
   entry_info_table.map do |row|
     keys.map do |key|
       if %i[file_mode entry_name owner_name group_name].include?(key)
-        row[key].ljust(max_widths_list[key])
+        row[key].ljust(max_widths[key])
       else
-        row[key].rjust(max_widths_list[key])
+        row[key].rjust(max_widths[key])
       end
     end
   end
 end
 
-def get_max_width_list(keys, entry_info_table)
+def get_max_widths(keys, entry_info_table)
   keys.to_h do |key|
     [key, entry_info_table.map { |row| row[key].to_s.length }.max]
   end
