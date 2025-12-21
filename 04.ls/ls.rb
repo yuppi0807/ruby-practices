@@ -33,11 +33,11 @@ FILE_PERMISSION_TABLES = {
 FILE_INFO_KEYS = %i[
   file_mode
   nlink
-  owner_name
+  owner
   group_name
-  file_size
+  size
   updated_date
-  entry_name
+  name
 ].freeze
 
 def main
@@ -94,12 +94,12 @@ def create_entry_info_table(entry_names)
     stat = File::Stat.new(entry_name)
     entry_info[:file_mode] = get_file_mode(stat, entry_name)
     entry_info[:nlink] = stat.nlink.to_s
-    entry_info[:owner_name] = get_owner_name(stat)
+    entry_info[:owner] = get_owner(stat)
     entry_info[:group_name] = get_group_name(stat)
-    entry_info[:file_size] = stat.size.to_s
+    entry_info[:size] = stat.size.to_s
     updated_day = File.mtime(entry_name)
     entry_info[:updated_date] = get_updated_date(updated_day)
-    entry_info[:entry_name] = entry_name
+    entry_info[:name] = entry_name
     entry_info
   end
   align_width(entry_info_table)
@@ -129,7 +129,7 @@ def get_extended_attributes(file_name)
   attrs.empty? ? ' ' : '@'
 end
 
-def get_owner_name(stat)
+def get_owner(stat)
   Etc.getpwuid(stat.uid).name
 end
 
@@ -155,7 +155,7 @@ def align_width(entry_info_table)
   max_widths = get_max_widths(FILE_INFO_KEYS, entry_info_table)
   entry_info_table.map do |row|
     FILE_INFO_KEYS.map do |key|
-      if %i[file_mode entry_name owner_name group_name].include?(key)
+      if %i[file_mode name owner group_name].include?(key)
         row[key].ljust(max_widths[key])
       else
         row[key].rjust(max_widths[key])
