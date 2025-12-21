@@ -36,7 +36,7 @@ FILE_INFO_KEYS = %i[
   owner_name
   group_name
   file_size
-  updated_dates
+  updated_date
   entry_name
 ].freeze
 
@@ -98,7 +98,7 @@ def create_entry_info_table(entry_names)
     entry_info[:group_name] = get_group_name(stat)
     entry_info[:file_size] = stat.size.to_s
     updated_day = File.mtime(entry_name)
-    entry_info[:updated_dates] = get_updated_dates(updated_day)
+    entry_info[:updated_date] = get_updated_date(updated_day)
     entry_info[:entry_name] = entry_name
     entry_info
   end
@@ -137,7 +137,7 @@ def get_group_name(stat)
   Etc.getgrgid(stat.gid).name
 end
 
-def get_updated_dates(updated_day)
+def get_updated_date(updated_day)
   before_date = (Date.today << MONTHS).to_time
   before_date_flag = before_date >= updated_day
   updated_date_format = before_date_flag ? '%_m %e %_5Y' : '%_m %e %H:%M'
