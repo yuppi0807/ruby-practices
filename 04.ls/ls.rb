@@ -7,7 +7,7 @@ require 'etc'
 require 'date'
 
 COL_COUNT = 3
-BEFORE_MONTH = 6
+MONTHS = 6
 
 FILE_TYPES = {
   '01' => 'p',
@@ -142,7 +142,7 @@ def get_group_name(stat)
 end
 
 def get_updated_dates(updated_day)
-  before_date = (Date.today << BEFORE_MONTH).to_time
+  before_date = (Date.today << MONTHS).to_time
   before_date_flag = before_date >= updated_day
   updated_date_format = before_date_flag ? '%_m %e %_5Y' : '%_m %e %H:%M'
   updated_day.strftime(updated_date_format)
