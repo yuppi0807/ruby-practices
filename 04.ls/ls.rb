@@ -45,8 +45,7 @@ def main
   return unless success
   entry_names = Dir.glob('*')
   if options[:l]
-    entry_info_table = create_entry_info_table(entry_names)
-    total_blocks = create_total_blocks(entry_names)
+    total_blocks,entry_info_table = create_entry_info(entry_names)
     puts_entry_names_info(total_blocks, entry_info_table)
   else
     max_width = entry_names.map(&:size).max
@@ -88,10 +87,12 @@ def puts_table(entry_name_table, max_width)
   end
 end
 
-def create_entry_info_table(entry_names)
+def create_entry_info(entry_names)
+  total_blocks = 0;
   entry_info_table = entry_names.map do |entry_name|
     entry_info = {}
     stat = File::Stat.new(entry_name)
+    total_blocks += stat.blocks
     entry_info[:file_mode] = get_file_mode(stat, entry_name)
     entry_info[:nlink] = stat.nlink.to_s
     entry_info[:owner] = get_owner(stat)
@@ -102,13 +103,7 @@ def create_entry_info_table(entry_names)
     entry_info[:name] = entry_name
     entry_info
   end
-  align_width(entry_info_table)
-end
-
-def create_total_blocks(entry_names)
-  entry_names.sum do |entry_name|
-    File::Stat.new(entry_name).blocks
-  end
+  [total_blocks, align_width(entry_info_table)]
 end
 
 def get_file_mode(stat, entry_name)
