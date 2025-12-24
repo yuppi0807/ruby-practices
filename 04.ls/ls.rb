@@ -147,7 +147,7 @@ def puts_entry_names_info(total_blocks, entry_info_table)
 end
 
 def align_width(entry_info_table)
-  max_widths = get_max_widths(FILE_INFO_KEYS, entry_info_table)
+  max_widths = get_max_widths(entry_info_table)
   entry_info_table.map do |row|
     FILE_INFO_KEYS.map do |key|
       if %i[file_mode name owner group_name].include?(key)
@@ -159,8 +159,8 @@ def align_width(entry_info_table)
   end
 end
 
-def get_max_widths(keys, entry_info_table)
-  keys.to_h do |key|
+def get_max_widths(entry_info_table)
+  FILE_INFO_KEYS.to_h do |key|
     [key, entry_info_table.map { |row| row[key].to_s.length }.max]
   end
 end
