@@ -42,8 +42,8 @@ FILE_INFO_KEYS = %i[
 
 LEFT_ALIGNMENT_COLS = %i[
   file_mode
-  name 
-  owner 
+  name
+  owner
   group_name
 ].freeze
 
@@ -110,7 +110,7 @@ def create_entry_info(entry_names)
     entry_info[:name] = entry_name
     entry_info
   end
-  [total_blocks, align_width(entry_info_table)]
+  [total_blocks, entry_info_table]
 end
 
 def get_file_mode(stat, entry_name)
@@ -148,21 +148,18 @@ end
 
 def puts_entry_names_info(total_blocks, entry_info_table)
   puts "total #{total_blocks}"
-  entry_info_table.map do |entry_info|
-    puts entry_info.join(' ')
-  end
-end
 
-def align_width(entry_info_table)
   max_widths = get_max_widths(entry_info_table)
-  entry_info_table.map do |row|
-    FILE_INFO_KEYS.map do |key|
+
+  entry_info_table.each do |row|
+    entry_info = FILE_INFO_KEYS.map do |key|
       if LEFT_ALIGNMENT_COLS.include?(key)
         row[key].ljust(max_widths[key])
       else
         row[key].rjust(max_widths[key])
       end
     end
+    puts entry_info.join(' ')
   end
 end
 
