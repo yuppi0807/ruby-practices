@@ -40,6 +40,13 @@ FILE_INFO_KEYS = %i[
   name
 ].freeze
 
+LEFT_ALIGNMENT_COLS = %i[
+  file_mode
+  name 
+  owner 
+  group_name
+].freeze
+
 def main
   success, options = parse_options
   return unless success
@@ -150,7 +157,7 @@ def align_width(entry_info_table)
   max_widths = get_max_widths(entry_info_table)
   entry_info_table.map do |row|
     FILE_INFO_KEYS.map do |key|
-      if %i[file_mode name owner group_name].include?(key)
+      if LEFT_ALIGNMENT_COLS.include?(key)
         row[key].ljust(max_widths[key])
       else
         row[key].rjust(max_widths[key])
