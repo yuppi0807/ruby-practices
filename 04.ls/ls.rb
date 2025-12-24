@@ -50,9 +50,10 @@ LEFT_ALIGNMENT_COLS = %i[
 def main
   success, options = parse_options
   return unless success
+
   entry_names = Dir.glob('*')
   if options[:l]
-    total_blocks,entry_info_table = create_entry_info(entry_names)
+    total_blocks, entry_info_table = create_entry_info(entry_names)
     puts_entry_names_info(total_blocks, entry_info_table)
   else
     max_width = entry_names.map(&:size).max
@@ -95,7 +96,7 @@ def puts_table(entry_name_table, max_width)
 end
 
 def create_entry_info(entry_names)
-  total_blocks = 0;
+  total_blocks = 0
   entry_info_table = entry_names.map do |entry_name|
     entry_info = {}
     stat = File::Stat.new(entry_name)
