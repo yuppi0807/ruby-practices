@@ -34,7 +34,7 @@ FILE_INFO_KEYS = %i[
   file_mode
   nlink
   owner
-  group_name
+  group
   size
   updated_date
   name
@@ -44,7 +44,7 @@ LEFT_ALIGNMENT_COLS = %i[
   file_mode
   name
   owner
-  group_name
+  group
 ].freeze
 
 def main
@@ -103,7 +103,7 @@ def create_entry_info(entry_names)
     entry_info[:file_mode] = get_file_mode(stat, entry_name)
     entry_info[:nlink] = stat.nlink.to_s
     entry_info[:owner] = get_owner(stat)
-    entry_info[:group_name] = get_group_name(stat)
+    entry_info[:group] = get_group(stat)
     entry_info[:size] = stat.size.to_s
     entry_info[:updated_date] = get_updated_date(stat.mtime)
     entry_info[:name] = entry_name
@@ -134,7 +134,7 @@ def get_owner(stat)
   Etc.getpwuid(stat.uid).name
 end
 
-def get_group_name(stat)
+def get_group(stat)
   Etc.getgrgid(stat.gid).name
 end
 
