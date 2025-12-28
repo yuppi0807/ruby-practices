@@ -105,8 +105,7 @@ def create_entry_info(entry_names)
     entry_info[:owner] = get_owner(stat)
     entry_info[:group_name] = get_group_name(stat)
     entry_info[:size] = stat.size.to_s
-    updated_day = File.mtime(entry_name)
-    entry_info[:updated_date] = get_updated_date(updated_day)
+    entry_info[:updated_date] = get_updated_date(stat.mtime)
     entry_info[:name] = entry_name
     entry_info
   end
