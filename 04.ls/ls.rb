@@ -54,7 +54,7 @@ def main
   entry_names = Dir.glob('*')
   if options[:l]
     total_blocks, entry_info_table = create_entry_info(entry_names)
-    puts_entry_names_info(total_blocks, entry_info_table)
+    puts_entry_names_info(entry_info_table)
   else
     max_width = entry_names.map(&:size).max
     entry_name_table = convert_list_to_table(entry_names)
@@ -100,7 +100,7 @@ def create_entry_info(entry_names)
   entry_info_table = entry_names.map do |entry_name|
     entry_info = {}
     stat = File::Stat.new(entry_name)
-    total_blocks += stat.blocks
+    entry_info[:blocks] = stat.blocks
     entry_info[:file_mode] = get_file_mode(stat, entry_name)
     entry_info[:nlink] = stat.nlink.to_s
     entry_info[:owner] = get_owner(stat)
@@ -147,7 +147,8 @@ def get_updated_date(updated_day)
   updated_day.strftime(updated_date_format)
 end
 
-def puts_entry_names_info(total_blocks, entry_info_table)
+def puts_entry_names_info(entry_info_table)
+  total_blocks = entry_info_table.sum { |entry_info| entry_info[:blocks] }
   puts "total #{total_blocks}"
 
   max_widths = get_max_widths(entry_info_table)
