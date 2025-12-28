@@ -141,8 +141,8 @@ end
 def format_time(time)
   before_date = (Date.today << MONTHS).to_time
   before_date_flag = before_date >= time
-  format_time_style = before_date_flag ? '%_m %e %_5Y' : '%_m %e %H:%M'
-  time.strftime(format_time_style)
+  format = before_date_flag ? '%_m %e %_5Y' : '%_m %e %H:%M'
+  time.strftime(format)
 end
 
 def puts_entry_names_info(entry_info_table)
