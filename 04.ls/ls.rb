@@ -51,7 +51,10 @@ def main
   success, options = parse_options
   return unless success
 
-  entry_names = Dir.glob('*')
+  entry_names = options[:a] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+
+  entry_names = entry_names.reverse if options[:r]
+
   if options[:l]
     entry_info_table = create_entry_info_table(entry_names)
     puts_entry_names_info(entry_info_table)
@@ -63,9 +66,11 @@ def main
 end
 
 def parse_options
-  options = { l: false }
+  options = { a: false, l: false, r: false }
   OptionParser.new do |opts|
+    opts.on('-a') { options[:a] = true }
     opts.on('-l') { options[:l] = true }
+    opts.on('-r') { options[:r] = true }
   end.parse!
   [true, options]
 rescue OptionParser::InvalidOption
@@ -96,7 +101,7 @@ def puts_table(entry_name_table, max_width)
 end
 
 def create_entry_info_table(entry_names)
-  entry_info_table = entry_names.map do |entry_name|
+  entry_names.map do |entry_name|
     entry_info = {}
     stat = File::Stat.new(entry_name)
     entry_info[:blocks] = stat.blocks
@@ -109,7 +114,6 @@ def create_entry_info_table(entry_names)
     entry_info[:name] = entry_name
     entry_info
   end
-  entry_info_table
 end
 
 def get_file_mode(stat, entry_name)
