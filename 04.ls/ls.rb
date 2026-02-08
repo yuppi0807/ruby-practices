@@ -51,9 +51,7 @@ def main
   success, options = parse_options
   return unless success
 
-  entry_names = options[:a] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
-
-  entry_names = entry_names.reverse if options[:r]
+  entry_names = search_entry_names(options)
 
   if options[:l]
     entry_info_table = create_entry_info_table(entry_names)
@@ -63,6 +61,12 @@ def main
     entry_name_table = convert_list_to_table(entry_names)
     puts_table(entry_name_table, max_width)
   end
+end
+
+def search_entry_names(options)
+  entry_names = options[:a] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+
+  options[:r] ? entry_names.reverse : entry_names
 end
 
 def parse_options
