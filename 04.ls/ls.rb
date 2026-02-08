@@ -104,16 +104,16 @@ end
 def create_entry_metadata_table(entry_names)
   entry_names.map do |entry_name|
     stat = File::Stat.new(entry_name)
-    entry_metadata =   {
-    blocks:    stat.blocks,
-    file_mode: get_file_mode(stat, entry_name),
-    nlink:     stat.nlink.to_s,
-    owner:     get_owner(stat),
-    group:     get_group(stat),
-    size:      stat.size.to_s,
-    time:      format_time(stat.mtime),
-    name:      entry_name
-  }
+    {
+      blocks: stat.blocks,
+      file_mode: get_file_mode(stat, entry_name),
+      nlink: stat.nlink.to_s,
+      owner: get_owner(stat),
+      group: get_group(stat),
+      size: stat.size.to_s,
+      time: format_time(stat.mtime),
+      name: entry_name
+    }
   end
 end
 
