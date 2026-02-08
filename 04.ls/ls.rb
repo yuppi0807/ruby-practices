@@ -30,7 +30,7 @@ FILE_PERMISSION_TABLES = {
   '7' => 'rwx'
 }.freeze
 
-FILE_INFO_KEYS = %i[
+FILE_METADATA_KEYS = %i[
   file_mode
   nlink
   owner
@@ -54,12 +54,9 @@ def main
   entry_names = search_entry_names(options)
 
   if options[:l]
-    entry_info_table = create_entry_info_table(entry_names)
-    puts_entry_names_info(entry_info_table)
+    puts_entry_names_metadata(create_entry_metadata_table(entry_names))
   else
-    max_width = entry_names.map(&:size).max
-    entry_name_table = convert_list_to_table(entry_names)
-    puts_table(entry_name_table, max_width)
+    puts_table(convert_list_to_table(entry_names), entry_names.map(&:size).max)
   end
 end
 
@@ -104,10 +101,10 @@ def puts_table(entry_name_table, max_width)
   end
 end
 
-def create_entry_info_table(entry_names)
+def create_entry_metadata_table(entry_names)
   entry_names.map do |entry_name|
     stat = File::Stat.new(entry_name)
-    entry_info =   {
+    entry_metadata =   {
     blocks:    stat.blocks,
     file_mode: get_file_mode(stat, entry_name),
     nlink:     stat.nlink.to_s,
@@ -153,27 +150,27 @@ def format_time(time)
   time.strftime(format)
 end
 
-def puts_entry_names_info(entry_info_table)
-  total_blocks = entry_info_table.sum { |entry_info| entry_info[:blocks] }
+def puts_entry_names_metadata(entry_metadata_table)
+  total_blocks = entry_metadata_table.sum { |entry_metadata| entry_metadata[:blocks] }
   puts "total #{total_blocks}"
 
-  max_widths = get_max_widths(entry_info_table)
+  max_widths = get_max_widths(entry_metadata_table)
 
-  entry_info_table.each do |row|
-    entry_info = FILE_INFO_KEYS.map do |key|
+  entry_metadata_table.each do |row|
+    entry_metadata = FILE_METADATA_KEYS.map do |key|
       if LEFT_ALIGNMENT_COLS.include?(key)
         row[key].ljust(max_widths[key])
       else
         row[key].rjust(max_widths[key])
       end
     end
-    puts entry_info.join(' ')
+    puts entry_metadata.join(' ')
   end
 end
 
-def get_max_widths(entry_info_table)
-  FILE_INFO_KEYS.to_h do |key|
-    [key, entry_info_table.map { |row| row[key].to_s.length }.max]
+def get_max_widths(entry_metadata_table)
+  FILE_METADATA_KEYS.to_h do |key|
+    [key, entry_metadata_table.map { |row| row[key].to_s.length }.max]
   end
 end
 
