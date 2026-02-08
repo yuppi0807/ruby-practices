@@ -102,17 +102,17 @@ end
 
 def create_entry_info_table(entry_names)
   entry_names.map do |entry_name|
-    entry_info = {}
     stat = File::Stat.new(entry_name)
-    entry_info[:blocks] = stat.blocks
-    entry_info[:file_mode] = get_file_mode(stat, entry_name)
-    entry_info[:nlink] = stat.nlink.to_s
-    entry_info[:owner] = get_owner(stat)
-    entry_info[:group] = get_group(stat)
-    entry_info[:size] = stat.size.to_s
-    entry_info[:time] = format_time(stat.mtime)
-    entry_info[:name] = entry_name
-    entry_info
+    entry_info =   {
+    blocks:    stat.blocks,
+    file_mode: get_file_mode(stat, entry_name),
+    nlink:     stat.nlink.to_s,
+    owner:     get_owner(stat),
+    group:     get_group(stat),
+    size:      stat.size.to_s,
+    time:      format_time(stat.mtime),
+    name:      entry_name
+  }
   end
 end
 
