@@ -56,7 +56,7 @@ def main
   if options[:l]
     puts_entry_long_formats(entry_names)
   else
-    puts_table(entry_names)
+    puts_entry_names(entry_names)
   end
 end
 
@@ -81,18 +81,18 @@ end
 
 def convert_list_to_table(entry_names)
   row_size = entry_names.size.ceildiv(COL_COUNT)
-  entry_name_table_blanks = entry_names.each_slice(row_size).to_a
-  entry_name_table = fill_blanks(entry_name_table_blanks, row_size)
-  entry_name_table.transpose
+  entry_name_list_blanks = entry_names.each_slice(row_size).to_a
+  entry_name_list = fill_blanks(entry_name_list_blanks, row_size)
+  entry_name_list.transpose
 end
 
-def fill_blanks(entry_name_table_blanks, row_size)
-  entry_name_table_blanks.map do |entry_names|
+def fill_blanks(entry_name_list_blanks, row_size)
+  entry_name_list_blanks.map do |entry_names|
     entry_names + Array.new(row_size - entry_names.length)
   end
 end
 
-def puts_table(entry_names)
+def puts_entry_names(entry_names)
   entry_name_table = convert_list_to_table(entry_names)
   max_width = entry_names.map(&:size).max
   entry_name_table.each do |entry_names|
