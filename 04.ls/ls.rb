@@ -30,7 +30,7 @@ FILE_PERMISSION_TABLES = {
   '7' => 'rwx'
 }.freeze
 
-FILE_METADATA_KEYS = %i[
+ENTRY_LONG_FORMAT_KEYS = %i[
   file_mode
   nlink
   owner
@@ -54,7 +54,7 @@ def main
   entry_names = search_entry_names(options)
 
   if options[:l]
-    puts_entry_names_metadata(create_entry_metadata_table(entry_names))
+    puts_entry_long_formats(create_entry_long_formats(entry_names))
   else
     puts_table(convert_list_to_table(entry_names), entry_names.map(&:size).max)
   end
@@ -101,7 +101,7 @@ def puts_table(entry_name_table, max_width)
   end
 end
 
-def create_entry_metadata_table(entry_names)
+def create_entry_long_formats(entry_names)
   entry_names.map do |entry_name|
     stat = File::Stat.new(entry_name)
     {
@@ -150,27 +150,27 @@ def format_time(time)
   time.strftime(format)
 end
 
-def puts_entry_names_metadata(entry_metadata_table)
-  total_blocks = entry_metadata_table.sum { |entry_metadata| entry_metadata[:blocks] }
+def puts_entry_long_formats(entry_long_formats)
+  total_blocks = entry_long_formats.sum { |entry_long_format| entry_long_format[:blocks] }
   puts "total #{total_blocks}"
 
-  max_widths = get_max_widths(entry_metadata_table)
+  max_widths = get_max_widths(entry_long_formats)
 
-  entry_metadata_table.each do |row|
-    entry_metadata = FILE_METADATA_KEYS.map do |key|
+  entry_long_formats.each do |row|
+    entry_long_format = ENTRY_LONG_FORMAT_KEYS.map do |key|
       if LEFT_ALIGNMENT_COLS.include?(key)
         row[key].ljust(max_widths[key])
       else
         row[key].rjust(max_widths[key])
       end
     end
-    puts entry_metadata.join(' ')
+    puts entry_long_format.join(' ')
   end
 end
 
-def get_max_widths(entry_metadata_table)
-  FILE_METADATA_KEYS.to_h do |key|
-    [key, entry_metadata_table.map { |row| row[key].to_s.length }.max]
+def get_max_widths(entry_long_formats)
+  ENTRY_LONG_FORMAT_KEYS.to_h do |key|
+    [key, entry_long_formats.map { |row| row[key].to_s.length }.max]
   end
 end
 
