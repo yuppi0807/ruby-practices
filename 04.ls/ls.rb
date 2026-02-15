@@ -30,7 +30,7 @@ FILE_PERMISSION_TABLES = {
   '7' => 'rwx'
 }.freeze
 
-LONG_FORMAT_COLS = %i[
+METADATA_COLS = %i[
   file_mode
   nlink
   owner
@@ -161,7 +161,7 @@ def puts_in_metadata(entry_names)
   max_widths = get_max_widths(entry_metadata_list)
 
   entry_metadata_list.each do |row|
-    entry_metadata = LONG_FORMAT_COLS.map do |key|
+    entry_metadata = METADATA_COLS.map do |key|
       if LEFT_ALIGNMENT_COLS.include?(key)
         row[key].ljust(max_widths[key])
       else
@@ -173,7 +173,7 @@ def puts_in_metadata(entry_names)
 end
 
 def get_max_widths(entry_metadata_list)
-  LONG_FORMAT_COLS.to_h do |key|
+  METADATA_COLS.to_h do |key|
     [key, entry_metadata_list.map { |row| row[key].to_s.length }.max]
   end
 end
