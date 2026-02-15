@@ -95,9 +95,9 @@ end
 def puts_entry_names(entry_names)
   entry_name_table = convert_list_to_table(entry_names)
   max_width = entry_names.map(&:size).max
-  entry_name_table.each do |entry_name_row|
-    entry_name_row.each do |entry_name|
-      print entry_name.to_s.ljust(max_width + 2)
+  entry_name_table.each do |row|
+    row.each do |col|
+      print col.to_s.ljust(max_width + 2)
     end
     puts
   end
