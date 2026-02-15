@@ -30,7 +30,7 @@ FILE_PERMISSION_TABLES = {
   '7' => 'rwx'
 }.freeze
 
-ENTRY_LONG_FORMAT_KEYS = %i[
+LONG_FORMAT_COLS = %i[
   file_mode
   nlink
   owner
@@ -54,7 +54,7 @@ def main
   entry_names = search_entry_names(options)
 
   if options[:l]
-    puts_entry_long_formats(entry_names)
+    puts_in_metadata(entry_names)
   else
     puts_entry_names(entry_names)
   end
@@ -95,15 +95,15 @@ end
 def puts_entry_names(entry_names)
   entry_name_table = convert_list_to_table(entry_names)
   max_width = entry_names.map(&:size).max
-  entry_name_table.each do |entry_name_list|
-    entry_name_list.each do |entry_name|
+  entry_name_table.each do |entry_names|
+    entry_names.each do |entry_name|
       print entry_name.to_s.ljust(max_width + 2)
     end
     puts
   end
 end
 
-def create_entry_long_formats(entry_names)
+def create_entry_metadata_list(entry_names)
   entry_names.map do |entry_name|
     stat = File::Stat.new(entry_name)
     {
@@ -152,29 +152,29 @@ def format_time(time)
   time.strftime(format)
 end
 
-def puts_entry_long_formats(entry_names)
-  entry_long_formats = create_entry_long_formats(entry_names)
+def puts_in_metadata(entry_names)
+  entry_metadata_list = create_entry_metadata_list(entry_names)
 
-  total_blocks = entry_long_formats.sum { |entry_long_format| entry_long_format[:blocks] }
+  total_blocks = entry_metadata_list.sum { |entry_metadata| entry_metadata[:blocks] }
   puts "total #{total_blocks}"
 
-  max_widths = get_max_widths(entry_long_formats)
+  max_widths = get_max_widths(entry_metadata_list)
 
-  entry_long_formats.each do |row|
-    entry_long_format = ENTRY_LONG_FORMAT_KEYS.map do |key|
+  entry_metadata_list.each do |row|
+    entry_metadata = LONG_FORMAT_COLS.map do |key|
       if LEFT_ALIGNMENT_COLS.include?(key)
         row[key].ljust(max_widths[key])
       else
         row[key].rjust(max_widths[key])
       end
     end
-    puts entry_long_format.join(' ')
+    puts entry_metadata.join(' ')
   end
 end
 
-def get_max_widths(entry_long_formats)
-  ENTRY_LONG_FORMAT_KEYS.to_h do |key|
-    [key, entry_long_formats.map { |row| row[key].to_s.length }.max]
+def get_max_widths(entry_metadata_list)
+  LONG_FORMAT_COLS.to_h do |key|
+    [key, entry_metadata_list.map { |row| row[key].to_s.length }.max]
   end
 end
 
