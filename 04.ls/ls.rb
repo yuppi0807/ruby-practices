@@ -19,7 +19,7 @@ FILE_TYPES = {
   '14' => 's'
 }.freeze
 
-FILE_PERMISSION_TABLES = {
+FILE_PERMISSIONS = {
   '0' => '---',
   '1' => '--x',
   '2' => '-w-',
@@ -30,7 +30,7 @@ FILE_PERMISSION_TABLES = {
   '7' => 'rwx'
 }.freeze
 
-FILE_INFO_KEYS = %i[
+METADATA_COLS = %i[
   file_mode
   nlink
   owner
@@ -51,21 +51,27 @@ def main
   success, options = parse_options
   return unless success
 
-  entry_names = Dir.glob('*')
+  entry_names = search_entry_names(options)
+
   if options[:l]
-    entry_info_table = create_entry_info_table(entry_names)
-    puts_entry_names_info(entry_info_table)
+    puts_in_long_format(entry_names)
   else
-    max_width = entry_names.map(&:size).max
-    entry_name_table = convert_list_to_table(entry_names)
-    puts_table(entry_name_table, max_width)
+    puts_in_default_format(entry_names)
   end
 end
 
+def search_entry_names(options)
+  entry_names = options[:a] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+
+  options[:r] ? entry_names.reverse : entry_names
+end
+
 def parse_options
-  options = { l: false }
+  options = { a: false, l: false, r: false }
   OptionParser.new do |opts|
+    opts.on('-a') { options[:a] = true }
     opts.on('-l') { options[:l] = true }
+    opts.on('-r') { options[:r] = true }
   end.parse!
   [true, options]
 rescue OptionParser::InvalidOption
@@ -73,43 +79,44 @@ rescue OptionParser::InvalidOption
   [false, nil]
 end
 
-def convert_list_to_table(entry_names)
-  row_size = entry_names.size.ceildiv(COL_COUNT)
-  entry_name_table_blanks = entry_names.each_slice(row_size).to_a
-  entry_name_table = fill_blanks(entry_name_table_blanks, row_size)
-  entry_name_table.transpose
-end
-
-def fill_blanks(entry_name_table_blanks, row_size)
-  entry_name_table_blanks.map do |entry_names|
-    entry_names + Array.new(row_size - entry_names.length)
-  end
-end
-
-def puts_table(entry_name_table, max_width)
-  entry_name_table.each do |entry_names|
-    entry_names.each do |entry_name|
-      print entry_name.to_s.ljust(max_width + 2)
+def puts_in_default_format(entry_names)
+  entry_name_table = convert_list_to_table(entry_names)
+  max_width = entry_names.map(&:size).max
+  entry_name_table.each do |row|
+    row.each do |col|
+      print col.to_s.ljust(max_width + 2)
     end
     puts
   end
 end
 
-def create_entry_info_table(entry_names)
-  entry_info_table = entry_names.map do |entry_name|
-    entry_info = {}
-    stat = File::Stat.new(entry_name)
-    entry_info[:blocks] = stat.blocks
-    entry_info[:file_mode] = get_file_mode(stat, entry_name)
-    entry_info[:nlink] = stat.nlink.to_s
-    entry_info[:owner] = get_owner(stat)
-    entry_info[:group] = get_group(stat)
-    entry_info[:size] = stat.size.to_s
-    entry_info[:time] = format_time(stat.mtime)
-    entry_info[:name] = entry_name
-    entry_info
+def convert_list_to_table(entry_names)
+  row_size = entry_names.size.ceildiv(COL_COUNT)
+  incomplete_table = entry_names.each_slice(row_size).to_a
+  table = fill_blanks(incomplete_table, row_size)
+  table.transpose
+end
+
+def fill_blanks(incomplete_table, row_size)
+  incomplete_table.map do |entry_names|
+    entry_names + Array.new(row_size - entry_names.length)
   end
-  entry_info_table
+end
+
+def create_entry_metadata_list(entry_names)
+  entry_names.map do |entry_name|
+    stat = File::Stat.new(entry_name)
+    {
+      blocks: stat.blocks,
+      file_mode: get_file_mode(stat, entry_name),
+      nlink: stat.nlink.to_s,
+      owner: get_owner(stat),
+      group: get_group(stat),
+      size: stat.size.to_s,
+      time: format_time(stat.mtime),
+      name: entry_name
+    }
+  end
 end
 
 def get_file_mode(stat, entry_name)
@@ -122,7 +129,7 @@ def get_file_mode(stat, entry_name)
 end
 
 def get_file_permission(stat_mode)
-  stat_mode[3..5].chars.map { |digit| FILE_PERMISSION_TABLES[digit] }.join
+  stat_mode[3..5].chars.map { |digit| FILE_PERMISSIONS[digit] }.join
 end
 
 def get_extended_attributes(file_name)
@@ -145,27 +152,29 @@ def format_time(time)
   time.strftime(format)
 end
 
-def puts_entry_names_info(entry_info_table)
-  total_blocks = entry_info_table.sum { |entry_info| entry_info[:blocks] }
+def puts_in_long_format(entry_names)
+  entry_metadata_list = create_entry_metadata_list(entry_names)
+
+  total_blocks = entry_metadata_list.sum { |entry_metadata| entry_metadata[:blocks] }
   puts "total #{total_blocks}"
 
-  max_widths = get_max_widths(entry_info_table)
+  max_widths = get_max_widths(entry_metadata_list)
 
-  entry_info_table.each do |row|
-    entry_info = FILE_INFO_KEYS.map do |key|
+  entry_metadata_list.each do |entry_metadata|
+    cols = METADATA_COLS.map do |key|
       if LEFT_ALIGNMENT_COLS.include?(key)
-        row[key].ljust(max_widths[key])
+        entry_metadata[key].ljust(max_widths[key])
       else
-        row[key].rjust(max_widths[key])
+        entry_metadata[key].rjust(max_widths[key])
       end
     end
-    puts entry_info.join(' ')
+    puts cols.join(' ')
   end
 end
 
-def get_max_widths(entry_info_table)
-  FILE_INFO_KEYS.to_h do |key|
-    [key, entry_info_table.map { |row| row[key].to_s.length }.max]
+def get_max_widths(entry_metadata_list)
+  METADATA_COLS.to_h do |key|
+    [key, entry_metadata_list.map { |m| m[key].to_s.length }.max]
   end
 end
 
