@@ -11,13 +11,14 @@ LEFT_ALIGNMENT_COLS = %i[
 ].freeze
 
 def main
-  success, non_options, options = parse_options
-  return unless success
+  options = parse_options
+
+  return unless options[:success]
 
   if $stdin.tty?
-    puts_metadata(non_options, options)
+    puts_metadata(options[:non_options], options[:option])
   else
-    puts_stdindata(non_options, options)
+    puts_stdindata(options[:non_options], options[:option])
   end
 end
 
@@ -29,12 +30,12 @@ def parse_options
     opts.on('-c') { options[:c] = true }
   end.parse!
 
-  return [true, true, options] unless options.values_at(:l, :w, :c).any?
+  return {success: true, non_options: true, option: options} unless options.values_at(:l, :w, :c).any?
 
-  [true, false, options]
+  {success: true, non_options: false, option: options}
 rescue OptionParser::InvalidOption
   puts '不正なオプションです'
-  [false, nil, nil]
+  {success: false, non_options: nil, option: nil}
 end
 
 def puts_metadata(non_options, options)
