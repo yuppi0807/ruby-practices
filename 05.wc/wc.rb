@@ -29,9 +29,9 @@ def parse_options
     opts.on('-c') { options[:c] = true }
   end.parse!
 
-  return {non_options: true, option: options} unless options.values_at(:l, :w, :c).any?
+  return { non_options: true, option: options } unless options.values_at(:l, :w, :c).any?
 
-  {non_options: false, option: options}
+  { non_options: false, option: options }
 rescue OptionParser::InvalidOption
   abort '不正なオプションです'
 end
@@ -48,7 +48,7 @@ def build_input
     [
       {
         filename: nil,
-        contents: STDIN.read
+        contents: $stdin.read
       }
     ]
   end
