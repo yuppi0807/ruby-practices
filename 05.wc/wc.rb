@@ -17,7 +17,7 @@ def main
     files = build_input
     puts_metadata(options[:non_options], options[:option], files)
   else
-    puts_stdindata(options[:non_options], options[:option])
+    puts_wc_data(options[:non_options], options[:option])
   end
 end
 
@@ -80,9 +80,9 @@ end
 def file_metadata(non_options, options, file)
   contents = file[:contents]
   metadata = {}
-  metadata[:line] = make_stdin_line(contents) if options[:l] || non_options
-  metadata[:word] = make_stdin_word(contents) if options[:w] || non_options
-  metadata[:byte] = make_stdin_byte(contents) if options[:c] || non_options
+  metadata[:line] = make_line(contents) if options[:l] || non_options
+  metadata[:word] = make_word(contents) if options[:w] || non_options
+  metadata[:byte] = make_byte(contents) if options[:c] || non_options
   metadata[:path] = file[:filename]
 
   metadata
@@ -102,29 +102,29 @@ def make_total_metadata(keys, metadata_list)
   total_metadata
 end
 
-def puts_stdindata(non_options, options)
-  stdindata = make_stdindata(non_options, options)
-  puts stdindata.values.join(' ')
+def puts_wc_data(non_options, options)
+  wc_data = make_wc_data(non_options, options)
+  puts wc_data.values.join(' ')
 end
 
-def make_stdindata(non_options, options)
+def make_wc_data(non_options, options)
   input = ARGF.read
-  stdindata = {}
-  stdindata[:line] = make_stdin_line(input) if options[:l] || non_options
-  stdindata[:word] = make_stdin_word(input) if options[:w] || non_options
-  stdindata[:byte] = make_stdin_byte(input) if options[:c] || non_options
-  stdindata
+  wc_data = {}
+  wc_data[:line] = make_line(input) if options[:l] || non_options
+  wc_data[:word] = make_word(input) if options[:w] || non_options
+  wc_data[:byte] = make_byte(input) if options[:c] || non_options
+  wc_data
 end
 
-def make_stdin_line(input)
+def make_line(input)
   input.each_line.count.to_s
 end
 
-def make_stdin_word(input)
+def make_word(input)
   input.split.size.to_s
 end
 
-def make_stdin_byte(input)
+def make_byte(input)
   input.bytesize.to_s
 end
 
