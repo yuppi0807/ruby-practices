@@ -88,10 +88,6 @@ def file_metadata(non_options, options, file)
   metadata
 end
 
-def paths
-  ARGV
-end
-
 def make_max_widths(keys, metadata_list)
   keys.to_h do |key|
     [key, metadata_list.map { |m| m[key].to_s.length }.max]
