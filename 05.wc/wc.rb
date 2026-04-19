@@ -10,8 +10,6 @@ LEFT_ALIGNMENT_COLS = %i[
   byte
 ].freeze
 
-require 'debug'
-
 def main
   options = parse_options
   files = build_input
