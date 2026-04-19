@@ -12,7 +12,7 @@ LEFT_ALIGNMENT_COLS = %i[
 
 def main
   options = parse_options
-  files = build_input
+  files = build_files
   puts_metadata(options[:non_options], options[:option], files)
 end
 
@@ -31,7 +31,7 @@ rescue OptionParser::InvalidOption
   abort '不正なオプションです'
 end
 
-def build_input
+def build_files
   if ARGV.any?
     ARGV.map do |path|
       {
