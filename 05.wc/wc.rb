@@ -10,15 +10,12 @@ LEFT_ALIGNMENT_COLS = %i[
   byte
 ].freeze
 
+require 'debug'
+
 def main
   options = parse_options
-
-  if $stdin.tty?
-    files = build_input
-    puts_metadata(options[:non_options], options[:option], files)
-  else
-    puts_wc_data(options[:non_options], options[:option])
-  end
+  files = build_input
+  puts_metadata(options[:non_options], options[:option], files)
 end
 
 def parse_options
@@ -48,7 +45,7 @@ def build_input
     [
       {
         filename: nil,
-        contents: $stdin.read
+        contents: ARGF.read
       }
     ]
   end
@@ -100,20 +97,6 @@ def make_total_metadata(keys, metadata_list)
   end
   total_metadata[:path] = 'total'
   total_metadata
-end
-
-def puts_wc_data(non_options, options)
-  wc_data = make_wc_data(non_options, options)
-  puts wc_data.values.join(' ')
-end
-
-def make_wc_data(non_options, options)
-  input = ARGF.read
-  wc_data = {}
-  wc_data[:line] = make_line(input) if options[:l] || non_options
-  wc_data[:word] = make_word(input) if options[:w] || non_options
-  wc_data[:byte] = make_byte(input) if options[:c] || non_options
-  wc_data
 end
 
 def make_line(input)
